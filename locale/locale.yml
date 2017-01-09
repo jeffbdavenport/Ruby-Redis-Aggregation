@@ -1,0 +1,5 @@
+en:
+  starting_download: 'Downloading zip files'
+download:
+  url: 'http://feed.omgili.com/5Rh5AMTrc4Pv/mainstream/posts/'
+  path: 'tmp'
