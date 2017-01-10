@@ -8,14 +8,14 @@ class Download
     @tmp = args[:tmp] ||= 'tmp'
     Dir.mkdir @tmp unless File.exist?(@tmp)
     @url = args[:url]
-    links
+    page_links
   end
 end
 
-def links
+def page_links
   @links = Nokogiri::HTML(open(@url)).css('a').map do |a|
     a.attr 'href'
-  end.compact.uniq
+  end
 end
 
 #open('image.png', 'wb') do |file|
