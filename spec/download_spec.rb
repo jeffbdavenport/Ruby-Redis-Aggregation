@@ -10,7 +10,7 @@ RSpec.describe Download do
   end
   it 'should create an array of only local links' do
     expect(@download.links.class).to eq(Array)
-    expect(@download.links.size > 2220).to be(true)
+    expect(@download.links.size > 20).to be(true)
     expect(@download.links[0]).to be('1483718331541.zip')
   end
   describe '.download' do
