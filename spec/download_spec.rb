@@ -9,10 +9,10 @@ RSpec.describe Download do
     expect(File.exist?(@loc.download.path)).to eq(true)
   end
 
+  before do
+    @download.page_hrefs
+  end
   describe '.page_hrefs' do
-    before do
-      @download.page_hrefs
-    end
     it 'should create an array of only local links' do
       expect(@download.links.class).to eq(Array)
     end
@@ -21,11 +21,11 @@ RSpec.describe Download do
     end
   end
 
+  before do
+    @download.local_file_hrefs
+    @download.download @download.links[0]
+  end
   describe '.download' do
-    before do
-      @download.local_file_hrefs
-      @download.download @download.links[0]
-    end
     it 'should save 1000000000000.zip' do
       file = File.join(@loc.download.path, @download.links[0])
       expect(File.exist?(file)).to be(true)
