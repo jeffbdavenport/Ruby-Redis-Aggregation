@@ -32,7 +32,9 @@ end
 # Download a local file
 def download(file)
   return if file.nil?
-  open(File.join(@path, file), 'wb') do |f|
+  path = File.join(@path, file)
+  return if File.exist?(path)
+  open(path, 'wb') do |f|
     f << open(URI.join(@url, file)).read
   end
 end
