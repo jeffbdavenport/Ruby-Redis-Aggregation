@@ -9,6 +9,7 @@ class Download
     Dir.mkdir @path unless File.exist?(@path)
     @url = args[:url]
     local_page_links
+    $stderr.puts @links
     download @links[0]
   end
 end
@@ -17,9 +18,8 @@ end
 def local_page_links
   @links = Nokogiri::HTML(open(@url)).css('a').map do |a|
     href = a.attr 'href'
-    $stderr.puts href
     href =~ %r{[^\/]+\.[[:alnum:]]+\z} ? href : nil
-  end
+  end.compact
 end
 
 # Download all refs
