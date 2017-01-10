@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'open-uri'
 require 'nokogiri'
+require 'zip'
 # Downloads files from url
 class Download
   attr_reader :links
