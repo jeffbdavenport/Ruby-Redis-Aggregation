@@ -42,10 +42,11 @@ class Download
   end
 
   # read each zip file and send it to block
-  def read_zip(file, block)
+  def read_zip(file)
+    return unless File.extname(file) == '.zip'
     Zip::File.open(File.join(@path, file)) do |zip_file|
       zip_file.each do |entry|
-        block.call(entry.get_input_stream.read)
+        yield(entry.get_input_stream.read)
       end
     end
   end
