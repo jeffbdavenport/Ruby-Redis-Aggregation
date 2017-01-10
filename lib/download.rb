@@ -21,7 +21,7 @@ class Download
 
   # Store only local file hrefs
   def local_file_hrefs
-    page_links %r{[^/]+\.[[:alnum:]]+\z}
+    page_hrefs %r{[^/]+\.[[:alnum:]]+\z}
   end
 
   # Download all refs
