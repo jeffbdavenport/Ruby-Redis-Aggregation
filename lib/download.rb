@@ -17,7 +17,7 @@ end
 def local_page_links
   @links = Nokogiri::HTML(open(@url)).css('a').map do |a|
     href = a.attr 'href'
-    href =~ /\A[^\\]+\.[[:alnum:]]+\z/ ? href : nil
+    href =~ /\.[[:alnum:]]+\z/ ? href : nil
   end
 end
 

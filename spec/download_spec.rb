@@ -12,8 +12,8 @@ RSpec.describe Download do
     expect(@download.links.class).to eq(Array)
     expect(@download.links[0]).to be('1483718331541.zip')
   end
-  describe 'download' do
-    it 'should download 1483718331541.zip' do
+  describe '.download' do
+    it 'should save 1483718331541.zip' do
       file = File.join(@loc.download.path, '1483718331541.zip')
       expect(File.exist?(file)).to be(true)
     end
