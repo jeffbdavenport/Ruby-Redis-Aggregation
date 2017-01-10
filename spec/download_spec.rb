@@ -21,12 +21,6 @@ RSpec.describe Download do
     end
   end
 
-  describe '.local_file_hrefs' do
-    it 'should only store file hrefs without a url' do
-      expect(@download.links[0] =~ /\A[0-9]{13}\.zip\z/).to be(0)
-    end
-  end
-
   describe '.page_hrefs' do
     before do
       @download.page_hrefs
@@ -34,6 +28,15 @@ RSpec.describe Download do
     it 'should store all hrefs' do
       expect(@download.links[0]).to be('test')
       expect(@download.links[0] !~ /\A[0-9]{13}\.zip\z/).to be(0)
+    end
+  end
+
+  describe '.local_file_hrefs' do
+    before do
+      @download.local_file_hrefs
+    end
+    it 'should only store file hrefs without a url' do
+      expect(@download.links[0] =~ /\A[0-9]{13}\.zip\z/).to be(0)
     end
   end
 
