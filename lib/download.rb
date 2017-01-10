@@ -9,7 +9,6 @@ class Download
     Dir.mkdir @path unless File.exist?(@path)
     @url = args[:url]
     local_page_links
-    $stderr.puts @links
     download @links[0]
   end
 end
