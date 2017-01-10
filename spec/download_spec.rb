@@ -17,6 +17,7 @@ RSpec.describe Download do
       expect(@download.links.class).to eq(Array)
     end
     it 'should store all hrefs' do
+      @download.page_hrefs
       expect(@download.links[0] !~ /\A[0-9]{13}\.zip\z/).to be(0)
     end
   end
