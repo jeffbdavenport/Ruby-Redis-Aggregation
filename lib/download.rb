@@ -5,19 +5,31 @@ require 'nokogiri'
 class Download
   attr_reader :links
   def initialize(args)
-    @tmp = args[:tmp] ||= 'tmp'
-    Dir.mkdir @tmp unless File.exist?(@tmp)
+    @path = args[:path] ||= 'tmp'
+    Dir.mkdir @path unless File.exist?(@path)
     @url = args[:url]
-    page_links
+    local_page_links
+    download @links[0]
   end
 end
 
-def page_links
+# Add all href links on the page to an array
+def local_page_links
   @links = Nokogiri::HTML(open(@url)).css('a').map do |a|
     a.attr 'href'
   end
 end
 
-#open('image.png', 'wb') do |file|
-#  file << open('http://example.com/image.png').read
-#end
+# Download all refs
+def download_all
+  @links.each do |file|
+    download(file)
+  end
+end
+
+# Download a local file
+def download(file)
+  open(File.join(@path, file), 'wb') do |f|
+    f << open(URI.join(@url, file)).read
+  end
+end
