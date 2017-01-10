@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'redis'
 #
-class AggregateXML
-  def initialize()
+class Aggregate
+  def initialize
   end
 end
