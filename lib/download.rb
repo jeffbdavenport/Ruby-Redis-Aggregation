@@ -16,7 +16,8 @@ end
 # Add all href links on the page to an array
 def local_page_links
   @links = Nokogiri::HTML(open(@url)).css('a').map do |a|
-    a.attr 'href'
+    href = a.attr 'href'
+    href =~ /\A[^\\]+\.[[:alnum:]]+\z/ ? href : nil
   end
 end
 
