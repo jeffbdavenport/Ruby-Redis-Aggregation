@@ -11,8 +11,7 @@ module Aggregate
     def self.check_valid_array(args, valid)
       return true if valid.nil?
       args.each_key do |key|
-        next if valid_has(valid, key)
-        raise InvalidKey, key
+        raise InvalidKey, key unless valid_has(valid, key)
       end
       true
     end
@@ -20,9 +19,8 @@ module Aggregate
 
     # True if valid has or is equal to key
     def self.valid_has(valid, key)
-      return true if valid == key
-      return unless valid.class == Array
-      true if valid.include?(key)
+      valid = [valid] unless valid.class == Array
+      valid.include?(key.to_sym)
     end
     private_class_method :valid_has
 
@@ -47,7 +45,7 @@ module Aggregate
       attr_reader :key
       def initialize(key)
         @key = key
-        super "Hash key \"#{@key}\", is not a valid key for #{@obj.class}"
+        super "Hash key \"#{@key}\", is not a valid key"
       end
     end
   end
