@@ -1,6 +1,7 @@
+$LOAD_PATH.unshift File.dirname(__FILE__)
 $LOAD_PATH.unshift Dir.pwd
 $LOAD_PATH.unshift File.join(Dir.pwd, 'lib')
-
+$LOAD_PATH.uniq!
 # Autoload each class for the module and add default paths to load path
 module Aggregate
   autoload :Arguments, 'aggregate/arguments'
