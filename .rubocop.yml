@@ -1,0 +1,7 @@
+AllCops:
+  TargetRubyVersion: 2.3
+LineLength:
+  Enabled: true
+  Max: 120
+Style/FrozenStringLiteralComment:
+  Enabled: false

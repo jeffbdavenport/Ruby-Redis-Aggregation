@@ -3,6 +3,7 @@ require 'yaml'
 
 # load locale from yml file into Object.
 class Locale
+  Args = Struct.new(:file)
   def initialize(args = {})
     file = args[:file]
     hash = if args[:file].nil?
