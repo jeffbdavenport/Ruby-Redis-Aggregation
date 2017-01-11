@@ -4,11 +4,12 @@ require 'fileutils'
 module Aggregate
   # Downloads files from url
   class FileList
-    attr_reader :entry_path, :path
+    attr_reader :entry_path, :path, :extracted
     def initialize(args = {})
       Arguments.valid? args: args, valid: [:entry_path, :path]
       @entry_path = args[:entry_path] || File.join('tmp', 'entries')
       @path = args[:path] || File.join('tmp')
+      @extracted = 0
     end
 
     # Get array of files in @path
@@ -32,9 +33,12 @@ module Aggregate
 
     # Extract zip file
     def extract(file)
+      puts LOC.file_list.extracting % { file: File.join(@path, file), path: @entry_path }
       entries(file).each do |entry|
         dest_file = File.join(@entry_path, entry.name)
+        next if File.exist?(dest_file)
         entry.extract(dest_file)
+        @extracted += 1
       end
     end
 
