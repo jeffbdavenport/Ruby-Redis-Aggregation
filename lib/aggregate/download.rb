@@ -3,18 +3,17 @@ require 'nokogiri'
 module Aggregate
   # Downloads files from url
   class Download
-    attr_reader :links
+    attr_reader :links, :downloaded
     def initialize(args)
-      Arguments.valid? args: args, valid: [:path, :url, :dest_path]
+      Arguments.valid? args: args, valid: [:path, :url]
       @path = args[:path] ||= 'tmp'
-      @dest_path = args[:dest_path] ||= File.join('tmp', 'zip')
-      Dir.mkdir @path unless File.exist?(@path)
       @url = args[:url]
       @links = []
+      @downloaded = 0
     end
 
     # Add all href links on the page to an array
-    def page_hrefs(regex = /./)
+    def page_hrefs(regex = /\A./)
       @links = Nokogiri::HTML(open(@url)).css('a').map do |a|
         href = a.attr 'href'
         href =~ regex ? href : nil
@@ -33,13 +32,23 @@ module Aggregate
       end
     end
 
+    # Download one
+    def download_one
+      @links.each do |file|
+        download(file) unless @downloaded.positive?
+      end
+    end
+
     # Download a local file
     def download(file)
       return if file.nil?
       path = File.join(@path, file)
       return if File.exist?(path)
       open(path, 'wb') do |f|
-        f << open(URI.join(@url, file)).read
+        url = URI.join(@url, file)
+        puts LOC.download.downloading % { url: url, file: path }
+        f << open(url).read
+        @downloaded += 1
       end
     end
   end
