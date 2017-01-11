@@ -1,10 +1,10 @@
 require 'yaml'
 
 module Aggregate
-  # load locale from yml file into Object.
+  # Load locale from yml file into Object.
   class Locale
-    Args = Struct.new(:file)
     def initialize(args = {})
+      Arguments.valid? args: args, valid: [:file, :hash]
       file = args[:file]
       hash = if args[:file].nil?
                args[:hash]

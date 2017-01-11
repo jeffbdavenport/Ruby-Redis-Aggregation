@@ -5,17 +5,18 @@ module Aggregate
   class Download
     attr_reader :links
     def initialize(args)
-      Arguments.validate(self, args, :path, :url)
+      Arguments.valid? args: args, valid: [:path, :url, :dest_path]
       @path = args[:path] ||= 'tmp'
+      @dest_path = args[:dest_path] ||= File.join('tmp', 'zip')
       Dir.mkdir @path unless File.exist?(@path)
       @url = args[:url]
+      @links = []
     end
 
     # Add all href links on the page to an array
-    def page_hrefs(regex = nil)
+    def page_hrefs(regex = /./)
       @links = Nokogiri::HTML(open(@url)).css('a').map do |a|
         href = a.attr 'href'
-        return href if regex.nil?
         href =~ regex ? href : nil
       end.compact
     end

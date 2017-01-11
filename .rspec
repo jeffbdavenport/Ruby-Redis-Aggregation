@@ -1,5 +1,1 @@
-RSpec.configure do |c|
-  c.default_path = Dir.pwd
-  $LOAD_PATH.unshift Dir.pwd
-  $LOAD_PATH.unshift File.join(Dir.pwd, 'lib')
-end
+--require spec_helper

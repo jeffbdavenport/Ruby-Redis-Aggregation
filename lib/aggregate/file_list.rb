@@ -1,52 +1,89 @@
 require 'zip'
+require 'fileutils'
 
 module Aggregate
   # Downloads files from url
   class FileList
-    attr_reader :files
-    def initialize(args)
-      @path = args[:path] ||= 'tmp'
-      Dir.mkdir @path unless File.exist?(@path)
-      @url = args[:url]
+    attr_reader :entry_path, :path
+    def initialize(args = {})
+      Arguments.valid? args: args, valid: [:entry_path, :path]
+      @entry_path = args[:entry_path] || File.join('tmp', 'entries')
+      @path = args[:path] || File.join('tmp')
+    end
+
+    # Get array of files in @path
+    def files
+      @files ||= base_files "#{@path}/*"
+    end
+
+    # Get array of entry files
+    def entry_files
+      @entry_files ||= base_files "#{@entry_path}/*"
     end
 
     # Yield each entry in zip file to a block
-    def zip_entries(file)
-      return unless File.extname(file) == '.zip'
-      Zip::File.open(File.join(@path, file)) do |zip_file|
-        zip_file.each do |entry|
-          yield(entry)
-        end
+    def entries(file)
+      case File.extname(file)
+      when '.zip'
+        # Gets array of file entries
+        Zip::File.open(File.join(@path, file))
       end
     end
 
     # Extract zip file
-    def extract_zip(file)
-      zip_entries(file) do |entry|
-        dest_file = File.join(@path, entry.name)
+    def extract(file)
+      entries(file).each do |entry|
+        dest_file = File.join(@entry_path, entry.name)
         entry.extract(dest_file)
       end
     end
 
-    # read each zip file and send it to block
-    def read_zip(file)
-      zip_entries(file) do |entry|
+    # Extract all zip files
+    def extract_all
+      @files.each do |file|
+        extract file
+      end
+    end
+
+    # Read each zip file and send it to block
+    def read_entries(file)
+      entries(file).each do |entry|
         yield(entry.get_input_stream.read)
       end
     end
 
-    # Extract all zip files
-    def extract_all_zips
-      @links.each do |link|
-        yield(extract_zip link)
+    # Read each zip
+    def read_all
+      @files.each do |file|
+        read_entries file do |data|
+          yield(data)
+        end
       end
     end
 
-    # read each zip
-    def read_all_zips
-      @links.each do |link|
-        yield(read_zip link)
-      end
+    # Remove file from folder
+    def rm(file)
+      rm_file @path, file
+    end
+
+    # Remove entry file from folder
+    def rm_entry(entry_file)
+      rm_file @entry_path, entry_file
+    end
+
+    private
+
+    # Remove file if it exists
+    def rm_file(path, file)
+      return false if file.nil?
+      file_path = File.join(path, file)
+      FileUtils.rm file_path if File.exist?(file_path)
+      true
+    end
+
+    # Set base path to list of files
+    def base_files(path)
+      Dir.glob(path).map { |f| File.basename(f) if File.file?(f) }.compact
     end
   end
 end
