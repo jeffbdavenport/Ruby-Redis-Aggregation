@@ -1,10 +1,25 @@
 namespace :aggregate do
-  desc 'Download zip files'
-  task :download, [:url] do |_, params|
-    require 'download.rb'
-    params.with_defaults url: Aggregate::LOC.download.url
-    @page = Aggregate::Download.new url: params[:url]
-    @page.local_file_hrefs
-    @page.download @page.links[0]
+  task :download, [:url] => ['download:one']
+
+  namespace :download do
+    desc 'Download one zip file'
+    task :one, [:url] => [:prepare] do
+      @page.download_one
+      puts 'Complete'
+    end
+
+    desc 'Download all files'
+    task :all, [:url] => [:prepare] do
+      @page.download_all
+      puts 'Complete'
+    end
+
+    # Prepare @page for tasks
+    # Task does not need to be run directly
+    task :prepare, [:url] do |_, params|
+      params.with_defaults url: Aggregate::LOC.download.url
+      @page = Aggregate::Download.new url: params[:url]
+      @page.local_file_hrefs
+    end
   end
 end
