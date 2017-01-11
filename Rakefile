@@ -1,5 +1,7 @@
 $LOAD_PATH.unshift File.dirname(__FILE__)
 require 'lib/aggregate'
-Dir.glob('lib/tasks/*/*.rake').each { |rake_file| import rake_file }
+%w(*.rake */*.rake).each do |path|
+  Dir.glob("lib/tasks/#{path}").each { |rake_file| import rake_file }
+end
 
-task default: ['aggregation:full']
+task default: ['aggregate:full']
