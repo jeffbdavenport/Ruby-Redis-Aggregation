@@ -3,6 +3,8 @@ en:
 download:
   url: 'http://feed.omgili.com/5Rh5AMTrc4Pv/mainstream/posts/'
   path: 'tmp'
+  downloading: 'Downloading %{url} to %{file}'
 file_list:
   entry_path: 'tmp/xml'
   path: 'tmp'
+  extracting: "Extracting %{file} to %{path}"
