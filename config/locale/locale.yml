@@ -3,3 +3,6 @@ en:
 download:
   url: 'http://feed.omgili.com/5Rh5AMTrc4Pv/mainstream/posts/'
   path: 'tmp'
+arguments:
+  hash_only: "Arguments %{args}, must be in hash form."
+  invalid_key: "%{key}, is not a valid key for %{class}"
