@@ -21,6 +21,7 @@ module Aggregate
     before do
       @download.download @download.links[0]
     end
+
     describe '#download' do
       before do
         @file_list = FileList.new path: LOC.file_list.path,
@@ -31,6 +32,17 @@ module Aggregate
       it 'should save file.zip' do
         file = File.join(LOC.download.path, @download.links[0])
         expect(File.exist?(file)).to be(true)
+      end
+    end
+
+    describe '#download_one' do
+      before do
+        @download = Download.new url: LOC.download.url, path: LOC.download.path
+        @download.local_file_hrefs
+        @download.download_one
+      end
+      it 'should download one file' do
+        expect(@download.downloaded).to eq 1
       end
     end
 
