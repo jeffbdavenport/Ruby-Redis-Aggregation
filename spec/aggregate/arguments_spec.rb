@@ -1,34 +1,42 @@
 # Access constants in Aggregate
 module Aggregate
-  RSpec.describe Arguments do
-    describe '.valid?' do
-      describe 'raises exception' do
-        it 'HashOnly when arguments is not a hash' do
-          expect do
-            Arguments.valid? args: 'string', valid: :fail
-          end.to raise_error(Arguments::HashOnly)
+  RSpec.describe Arguments do # rubocop:disable Metrics/BlockLength
+    describe '.valid?' do     # rubocop:disable Metrics/BlockLength
+      subject { Arguments.valid?(arguments) }
+
+      context 'when not a hash' do
+        let(:arguments) do
+          { args: 'string', valid: :fail }
         end
-        it 'InvalidKey when arguments is not a hash' do
-          expect do
-            Arguments.valid? args: { test: 'test' }, valid: :fail
-          end.to raise_error(Arguments::InvalidKey)
-        end
-        it 'MustHaveArgs when valid? argsument is missing :args key' do
-          expect do
-            Arguments.valid?(valid: :test)
-          end.to raise_error(Arguments::MustHaveArgs)
-        end
+        it_behaves_like 'it raises an error', Arguments::HashOnly
       end
 
-      it 'should return true, if it has valid arguments' do
-        expect(
-          Arguments.valid?(args: { test: 'test' }, valid: :test)
-        ).to be true
+      context 'when key is invalid' do
+        let(:arguments) do
+          { args: { test: 'test' }, valid: :fail }
+        end
+        it_behaves_like 'it raises an error', Arguments::InvalidKey
       end
-      it 'should return true, if it is missing valid key' do
-        expect(
-          Arguments.valid?(args: { test: 'test' })
-        ).to be true
+
+      context 'when missing :args key' do
+        let(:arguments) do
+          { valid: :test }
+        end
+        it_behaves_like 'it raises an error', Arguments::MustHaveArgs
+      end
+
+      context 'when valid' do
+        let(:arguments) do
+          { args: { test: 'test' }, valid: :test }
+        end
+        it { is_expected.to be true }
+      end
+
+      context 'when missing :valid key' do
+        let(:arguments) do
+          { args: { test: 'test' } }
+        end
+        it { is_expected.to be true }
       end
     end
   end

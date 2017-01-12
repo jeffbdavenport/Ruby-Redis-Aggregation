@@ -1,55 +1,54 @@
 # Access constants in Aggregate
 module Aggregate
-  RSpec.describe Download do
-    before do
-      @download = Download.new url: LOC.download.url, path: LOC.download.path
-      @download.local_file_hrefs
+  RSpec.describe Download do # rubocop:disable Metrics/BlockLength
+    let(:download) do
+      Download.new(url: CONF.download.url, path: CONF.download.path)
     end
+    let!(:count) { download.links.count }
 
-    describe '#page_hrefs' do
-      before do
-        @download.page_hrefs
-      end
-      it 'should create an array of only local links' do
-        expect(@download.links.class).to eq(Array)
-      end
-      it 'should store all hrefs' do
-        expect(@download.links.empty?).to be false
-      end
-    end
+    describe '#links' do
+      subject { download.links(argument).count }
 
-    before do
-      @download.download @download.links[0]
+      context 'with :all argument' do
+        let(:argument) { :all }
+        it { is_expected.to be > count }
+      end
+
+      context 'with :local argument' do
+        let(:argument) { :local }
+        it { is_expected.to eq count }
+      end
     end
 
     describe '#download' do
-      before do
-        @file_list = FileList.new path: LOC.file_list.path,
-                                  entry_path: LOC.file_list.entry_path
-        @file_list.rm @download.links[0]
-        @download.download @download.links[0]
+      let(:file_list) do
+        FileList.new path:       CONF.file_list.path,
+                     entry_path: CONF.file_list.entry_path
       end
-      it 'should save file.zip' do
-        file = File.join(LOC.download.path, @download.links[0])
+
+      before do
+        file_list.rm download.links[0]
+      end
+
+      it 'should download', slow: true do
+        download.download download.links[0]
+        file = File.join(CONF.download.path, download.links[0])
         expect(File.exist?(file)).to be(true)
+      end
+
+      after do
+        file_list.rm download.links[0]
       end
     end
 
     describe '#download_one' do
-      before do
-        @download = Download.new url: LOC.download.url, path: LOC.download.path
-        @download.local_file_hrefs
-        @download.download_one
+      let(:download) do
+        Download.new(url: CONF.download.url, path: CONF.download.path)
       end
-      it 'should download one file' do
-        expect(@download.downloaded).to eq 1
-      end
-    end
 
-    describe '#local_file_hrefs' do
-      before { @download.local_file_hrefs }
-      it 'should only store file hrefs without a url' do
-        expect(@download.links[0] =~ /\A[0-9]{13}\.zip\z/).to be(0)
+      it 'should download one file', slow: true do
+        download.download_one
+        expect(download.downloaded).to eq 1
       end
     end
   end
