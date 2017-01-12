@@ -8,21 +8,15 @@ module Aggregate
       Arguments.valid? args: args, valid: [:path, :url]
       @path = args[:path] ||= 'tmp'
       @url = args[:url]
-      @links = []
+      @all_links = []
+      @local_links = []
       @downloaded = 0
+      save_links
     end
 
     # Add all href links on the page to an array
-    def page_hrefs(regex = /\A./)
-      @links = Nokogiri::HTML(open(@url)).css('a').map do |a|
-        href = a.attr 'href'
-        href =~ regex ? href : nil
-      end.compact
-    end
-
-    # Store only local file hrefs
-    def local_file_hrefs
-      page_hrefs %r{[^/]+\.[[:alnum:]]+\z}
+    def links(type = :local)
+      @links = type == :all ? @all_links : @local_links
     end
 
     # Download all refs
@@ -46,9 +40,20 @@ module Aggregate
       return if File.exist?(path)
       open(path, 'wb') do |f|
         url = URI.join(@url, file)
-        puts LOC.download.downloading % { url: url, file: path }
+        puts LOC.en.download.downloading % { url: url, file: path }
         f << open(url).read
         @downloaded += 1
+      end
+    end
+
+    private
+
+    def save_links
+      @all_links = Nokogiri::HTML(open(@url)).css('a').map do |a|
+        a.attr 'href'
+      end.compact
+      @local_links = @all_links.select do |link|
+        link =~ /\A[[:alnum:].]++\z/
       end
     end
   end
