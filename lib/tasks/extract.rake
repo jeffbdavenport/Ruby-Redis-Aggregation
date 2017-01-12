@@ -1,7 +1,7 @@
 namespace :extract do
   xml_path = File.join 'tmp', 'xml'
   directory xml_path
-  @file_list = Aggregate::FileList.new entry_path: xml_path
+  @file_list = Aggregate::FileList.new path: 'tmp', entry_path: xml_path
 
   # Extract one file
   task :one, [:file] => xml_path do |_, params|
