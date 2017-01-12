@@ -33,7 +33,9 @@ module Aggregate
 
     # Extract zip file
     def extract(file)
-      puts LOC.file_list.extracting % { file: File.join(@path, file), path: @entry_path }
+      puts LOC.en.file_list.extracting % {
+        file: File.join(@path, file), path: @entry_path
+      }
       entries(file).each do |entry|
         dest_file = File.join(@entry_path, entry.name)
         next if File.exist?(dest_file)
@@ -44,7 +46,7 @@ module Aggregate
 
     # Extract all zip files
     def extract_all
-      @files.each do |file|
+      files.each do |file|
         extract file
       end
     end
@@ -58,7 +60,7 @@ module Aggregate
 
     # Read each zip
     def read_all
-      @files.each do |file|
+      files.each do |file|
         read_entries file do |data|
           yield(data)
         end
@@ -81,6 +83,7 @@ module Aggregate
     def rm_file(path, file)
       return false if file.nil?
       file_path = File.join(path, file)
+      files.delete file
       FileUtils.rm file_path if File.exist?(file_path)
       true
     end
