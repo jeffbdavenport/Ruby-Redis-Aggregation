@@ -14,6 +14,12 @@ namespace :extract do
     puts "Extracted #{@file_list.extracted} files."
   end
 
+  desc 'Download one and, Extract all files'
+  task get_then_all: [xml_path, :prepare, 'download:one'] do
+    @file_list.extract_all
+    puts "Extracted #{@file_list.extracted} files."
+  end
+
   # Does not need to be run directly
   task :prepare do
     @file_list = Aggregate::FileList.new path: 'tmp', entry_path: xml_path
