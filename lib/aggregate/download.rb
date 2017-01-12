@@ -55,6 +55,8 @@ module Aggregate
       @local_links = @all_links.select do |link|
         link =~ /\A[[:alnum:].]++\z/
       end
+      links
+      raise "Could not get any links from #{@url}" if @all_links.empty?
     end
   end
 end

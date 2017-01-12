@@ -21,6 +21,5 @@ namespace :download do
   task :prepare, [:url] => 'tmp' do |_, params|
     params.with_defaults url: CONF.download.url
     @page = Aggregate::Download.new url: params[:url]
-    @page.local_file_hrefs
   end
 end
