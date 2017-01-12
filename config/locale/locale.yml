@@ -1,10 +1,9 @@
 en:
-  starting_download: 'Downloading zip files'
-download:
-  url: 'http://feed.omgili.com/5Rh5AMTrc4Pv/mainstream/posts/'
-  path: 'tmp'
-  downloading: 'Downloading %{url} to %{file}'
-file_list:
-  entry_path: 'tmp/xml'
-  path: 'tmp'
-  extracting: "Extracting %{file} to %{path}"
+  download:
+    downloading: 'Downloading %{url} to %{file}'
+
+  file_list:
+    extracting: "Extracting %{file} to %{path}"
+
+  manage_data:
+    added: "Added data matching md5sum %{data} to list %{list}"
