@@ -4,4 +4,7 @@ require 'lib/aggregate'
   Dir.glob("lib/tasks/#{path}").each { |rake_file| import rake_file }
 end
 
-task default: ['aggregate:full']
+CONF = Aggregate::CONF
+LOC = Aggregate::LOC
+
+task default: ['aggregate:all']
