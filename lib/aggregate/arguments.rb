@@ -4,7 +4,7 @@ module Aggregate
     # Ensure args is a hash and has correct keys.
     def self.valid?(args)
       raise MustHaveArgs if args[:args].nil?
-      raise HashOnly, args[:args] unless args[:args].class == Hash
+      raise HashOnly, args[:args] unless args[:args].respond_to?(:keys)
       check_valid_array(args[:args], args[:valid])
     end
 
