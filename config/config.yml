@@ -3,6 +3,8 @@ download:
   url: 'http://feed.omgili.com/5Rh5AMTrc4Pv/mainstream/posts/'
   # Path where downloads will go
   path: 'tmp'
+  redis:
+    list: 'NEWS_XML_ZIP'
 
 file_list:
   # Path where files will be extracted to
