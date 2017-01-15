@@ -5,9 +5,10 @@ module Aggregate
   class Download
     attr_reader :links, :downloaded
     def initialize(args)
-      Arguments.valid? args: args, valid: [:path, :url]
+      Arguments.valid? args: args, valid: [:path, :url, :redis, :list]
       @path = args[:path] ||= 'tmp'
-      @url = args[:url]
+      @url =  args[:url]
+      @list = args[:list] || CONF.download.redis.list
       @all_links = []
       @local_links = []
       @downloaded = 0
@@ -35,18 +36,33 @@ module Aggregate
 
     # Download a local file
     def download(file)
-      return if file.nil?
-      path = File.join(@path, file)
-      return if File.exist?(path)
-      open(path, 'wb') do |f|
-        url = URI.join(@url, file)
-        puts LOC.en.download.downloading % { url: url, file: path }
-        f << open(url).read
+      return unless download?(file)
+      open(path(file), 'wb') do |f|
+        puts LOC.en.download.downloading % { url: url(file), file: path(file) }
+        f << open(url(file)).read
         @downloaded += 1
       end
     end
 
+    # File path
+    def path(file)
+      File.join(@path, file)
+    end
+
+    # File URL
+    def url(file)
+      URI.join(@url, file)
+    end
+
     private
+
+    def download?(file)
+      return false if File.exist? path(file)
+      @data = ManageData.new data: url(file), list: @list
+      return false if @data.exists?
+      @data.sadd
+      true
+    end
 
     def save_links
       @all_links = Nokogiri::HTML(open(@url)).css('a').map do |a|
