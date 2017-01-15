@@ -5,6 +5,7 @@ module Aggregate
     let(:file_list) do
       FileList.new path: 'spec/tmp', entry_path: 'spec/tmp/xml'
     end
+    let(:zip) { 'spec/tmp/zip_file.zip' }
 
     describe '#entry_path' do
       context 'after instantiation' do
@@ -67,22 +68,33 @@ module Aggregate
         it_behaves_like 'the file was removed', 'spec/tmp/file'
       end
     end
-
     describe '#extract' do
+      before do
+        FileUtils.cp zip, zip + '.bak'
+      end
       it 'should extract a file' do
         file_list.rm_entry 'file'
         file_list.extract 'zip_file.zip'
         expect(file_list.entry_files[0]).to eq 'file'
       end
+      after do
+        FileUtils.mv zip + '.bak', zip
+      end
     end
 
     describe '#read_entries' do
+      before do
+        FileUtils.cp zip, zip + '.bak'
+      end
       it 'should read each file from the zip archive and send it to the block' do
         read_file = false
         file_list.read_entries 'zip_file.zip' do |data|
-          read_file = true if !data.nil? && data == "'test'"
+          read_file = true if !data.nil? && data.chomp == "'test'"
         end
         expect(read_file).to be(true)
+      end
+      after do
+        FileUtils.mv zip + '.bak', zip
       end
     end
   end
