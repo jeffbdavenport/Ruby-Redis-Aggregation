@@ -42,6 +42,7 @@ module Aggregate
         entry.extract(dest_file)
         @extracted += 1
       end
+      rm file
     end
 
     # Extract all zip files
@@ -56,6 +57,7 @@ module Aggregate
       entries(file).each do |entry|
         yield(entry.get_input_stream.read)
       end
+      rm file
     end
 
     # Read each zip
