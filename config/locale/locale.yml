@@ -4,6 +4,7 @@ en:
 
   file_list:
     extracting: "Extracting %{file} to %{path}"
+    finished_reading: "Aggregated all XML files from %{file}"
 
   manage_data:
     added: "Added data matching md5sum %{data} to list %{list}"
