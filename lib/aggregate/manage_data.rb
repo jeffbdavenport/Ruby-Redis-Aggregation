@@ -13,8 +13,8 @@ module Aggregate
       @redis = args[:redis] || REDIS
     end
 
-    def self.aggregate(data)
-      ManageData.new(data: data).add_to_list
+    def self.aggregate(data, extra = nil)
+      ManageData.new(data: data, extra: extra).add_to_list
     end
 
     # Get the extra bit from the list
