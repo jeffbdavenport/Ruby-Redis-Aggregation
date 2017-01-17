@@ -1,27 +1,46 @@
 require 'digest'
+require 'snappy'
+
 module Aggregate
   # Manage redis data
   class ManageData
     attr_reader :md5_sum, :list
-    attr_writer :data
     def initialize(args)
-      Arguments.valid? args: args, valid: [:file, :data, :list, :redis]
+      Arguments.valid? args: args, valid: [:file, :data, :list, :redis, :extra]
       self.data = args[:data] || File.read(args[:file])
       @list =  args[:list] || CONF.redis.list
+      @extra = '_' + args[:extra] if args[:extra]
       @redis = args[:redis] || REDIS
+    end
+
+    def self.aggregate(data)
+      ManageData.new(data: data).add_to_list
+    end
+
+    # Get the extra bit from the list
+    def self.extra(key, list = CONF.redis.list)
+      key.gsub(/#{list}_/, '')
+    end
+
+    # add_to_list alias
+    def lpush
+      add_to_list
     end
 
     # Add data to redis list
     def add_to_list
       return if exists?
-      puts LOC.en.manage_data.added % { list: @list, data: @md5_sum }
-      @redis.lpush @list, @data
+      @redis.lpush list, @data
       sadd
     end
 
-    # Alias
-    def lpush
-      add_to_list
+    # Get list of data keys
+    def keys
+      @redis.keys(@list + '*').reject { |s| s.end_with? '_MD5' }
+    end
+
+    def list
+      "#{@list}#{@extra}"
     end
 
     # Add the MD5 sum of the data to redis
@@ -41,14 +60,21 @@ module Aggregate
 
     # Remove the data from list and the md5 from the md5 list
     def remove
-      @redis.lrem @list, -1, @data if exists?
+      @redis.lrem list, -1, @data if exists?
       @redis.srem md5_list, @md5_sum
     end
 
+    # Uncompress data
+    def data
+      Snappy.inflate @data
+    end
+
     def data=(data)
-      @data = data.to_s
+      @md5_sum = Digest::MD5.new.update(data.to_s).to_s
+
+      # Compress with google's speedy compressor
+      @data = Snappy.deflate(data.to_s)
       raise ':data cannot be empty.' if @data.empty?
-      @md5_sum = Digest::MD5.new.update @data
     end
   end
 end
