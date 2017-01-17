@@ -14,35 +14,38 @@ module Aggregate
 
     # Get array of files in @path
     def files
-      @files ||= base_files "#{@path}/*"
+      @files = base_files @path
     end
 
     # Get array of entry files
     def entry_files
-      @entry_files ||= base_files "#{@entry_path}/*"
+      @entry_files = base_files @entry_path
     end
 
     # Yield each entry in zip file to a block
     def entries(file)
-      case File.extname(file)
+      return [] unless file.exist?
+      return [] if file.zero?
+      case file.extname
       when '.zip'
         # Gets array of file entries
-        Zip::File.open(File.join(@path, file))
+        Zip::File.open file.path
+      else
+        []
       end
     end
 
     # Extract zip file
     def extract(file)
-      puts LOC.en.file_list.extracting % {
-        file: File.join(@path, file), path: @entry_path
-      }
-      entries(file).each do |entry|
+      puts format LOC.en.file_list.extracting, file: file.path, path: @entry_path
+      archive = entries(file)
+      archive.each do |entry|
         dest_file = File.join(@entry_path, entry.name)
         next if File.exist?(dest_file)
         entry.extract(dest_file)
         @extracted += 1
       end
-      rm file
+      file.rm if archive.count.positive?
     end
 
     # Extract all zip files
@@ -54,10 +57,13 @@ module Aggregate
 
     # Read each zip file and send it to block
     def read_entries(file)
+      archive = entries(file)
       entries(file).each do |entry|
         yield(entry.get_input_stream.read)
       end
-      rm file
+      return unless archive.count.positive?
+      puts format LOC.en.file_list.finished_reading, file: file.path
+      file.rm
     end
 
     # Read each zip
@@ -69,30 +75,19 @@ module Aggregate
       end
     end
 
-    # Remove file from folder
-    def rm(file)
-      rm_file @path, file
-    end
-
-    # Remove entry file from folder
-    def rm_entry(entry_file)
-      rm_file @entry_path, entry_file
+    # remove part files
+    def stop_and_remove_parts
+      (Thread.list - [Thread.current]).each(&:exit)
+      files.each(&:rm_part)
     end
 
     private
 
-    # Remove file if it exists
-    def rm_file(path, file)
-      return false if file.nil?
-      file_path = File.join(path, file)
-      files.delete file
-      FileUtils.rm file_path if File.exist?(file_path)
-      true
-    end
-
     # Set base path to list of files
     def base_files(path)
-      Dir.glob(path).map { |f| File.basename(f) if File.file?(f) }.compact
+      Dir.glob("#{path}/*").map do |f|
+        TmpFile.new file: File.basename(f), path: path if File.file?(f)
+      end.compact
     end
   end
 end
