@@ -1,17 +1,25 @@
 namespace :aggregate do
   xml_path = File.join 'tmp', 'xml'
 
-  desc 'Download, Extract, and insert into Redis'
-  task all: [xml_path, 'download:one'] do
-    # extract files
-    # @file_list.entry_files.each do |file|
-    # path = File.join(@entry_path, File.basename(file))
-    # end
+  desc 'For each zip: Download, push to Redis, Delete'
+  task :all, [:url] => ['tmp', xml_path, 'extract:prepare'] do |_, params|
+    params.with_defaults url: CONF.download.url
 
-    # Read without extracting
+    Signal.trap('INT') { Aggregate.kill }
+    Signal.trap('TERM') { Aggregate.kill }
+
+    # Aggregate existing zip files
     @file_list.read_all do |data|
-      @manage = Aggregate::ManageData.new data: data, redis: @redis
-      @manage.add_to_list
+      Aggregate::ManageData.aggregate(data)
+    end
+    @page = Aggregate::Download.new url: params[:url]
+
+    # Download all files, read zip entries, and push to redis
+    puts "Aggregating files from #{params[:url]}"
+    @page.download_all do |file|
+      @file_list.read_entries(file) do |data|
+        Aggregate::ManageData.aggregate(data, file.file.chomp('.zip'))
+      end
     end
   end
 end
