@@ -21,6 +21,7 @@ GEM
       rspec-support (~> 3.5.0)
     rspec-support (3.5.0)
     rubyzip (1.2.0)
+    snappy (0.0.15)
     zip-zip (0.3)
       rubyzip (>= 1.0.0)
 
@@ -34,6 +35,7 @@ DEPENDENCIES
   redis
   rspec
   rubyzip
+  snappy
   zip-zip
 
 BUNDLED WITH
