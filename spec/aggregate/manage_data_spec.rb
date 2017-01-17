@@ -56,7 +56,7 @@ module Aggregate
 
     describe '#md5_sum' do
       it 'should return md5sum of data' do
-        expect(data.md5_sum).to eq Digest::MD5.new.update('test')
+        expect(data.md5_sum).to eq Digest::MD5.new.update('test').to_s
       end
     end
   end
