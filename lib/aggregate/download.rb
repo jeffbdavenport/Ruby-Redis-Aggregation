@@ -3,16 +3,19 @@ require 'nokogiri'
 module Aggregate
   # Downloads files from url
   class Download
-    attr_reader :links, :downloaded
+    LOC = LOC.en.download
+    CONF = CONF.download
+    attr_accessor :downloaded
+    attr_reader :links
     def initialize(args = {})
-      Arguments.valid? args: args, valid: [:path, :url, :redis, :list]
-      @path = args[:path] ||= 'tmp'
-      @url =  args[:url] || CONF.download.url
-      @list = args[:list] || CONF.download.redis.list
-      @downloaded = 0
-      @thread_count = 0
-      @mutex = Mutex.new
-      @wait = Mutex.new
+      Arguments.valid? args, :path, :url, :redis, :list
+      Arguments.fill args, CONF,       :path, :url
+      Arguments.fill args, CONF.redis, :list
+      @path = args[:path]
+      @url  = URI(args[:url])
+      @list = args[:list]
+      @downloaded = @thread_count = 0
+      @mutex = (@wait = Mutex.new).dup # Assign uniqe Mutex to each
       save_links
     end
 
@@ -58,14 +61,12 @@ module Aggregate
     def download(file)
       return unless file.download?
       @mutex.synchronize do
-        puts format LOC.en.download.downloading, url: file.url, file: file.path
+        puts format LOC.downloading, url: file.url, file: file.path
       end
       file.rm_part
-      # Change to segments(file) for large downloads
-      segments(file)
+      return false unless segments(file)
       @mutex.synchronize { @downloaded += 1 }
       file.save_part
-      file.add_to_redis
     end
 
     private
@@ -84,32 +85,29 @@ module Aggregate
       end
     end
 
-    # Fast but saves entire file to memory before saving
-    def quick(file)
-      open(file.part, 'wb') do |f|
-        f << open(file.url).read
-      end
-    end
-
-    # Preferable for very large files
+    # Preferable for large files
     def segments(file)
-      Net::HTTP.start 'feed.omgili.com' do |http|
-        http.request_get('/5Rh5AMTrc4Pv/mainstream/posts/' + file.file) do |resp|
+      Net::HTTP.start @url.host do |http|
+        http.request_get(@url.path + file.file) do |resp|
+          if resp.code != '200'
+            warn "Could not download #{@url + file.file}, page returned #{resp.code}"
+            return false
+          end
           resp.read_body do |segment|
             open(file.part, 'ab') { |f| f.write(segment) }
           end
         end
       end
+      true
     end
 
+    # Save hrefs from @url to an array of TmpFiles
     def save_links
       @all_links = Nokogiri::HTML(open(@url)).css('a').map do |a|
         a.attr('href')
       end.compact.sort
       @local_links = @all_links.map do |link|
-        if link =~ /\A[[:alnum:].]++\z/
-          TmpFile.new file: link, path: @path
-        end
+        TmpFile.new file: link, path: @path, list: @list if link =~ /\A[[:alnum:].]++\z/
       end.compact
       links
       raise "Could not get any links from #{@url}" if @all_links.empty?
