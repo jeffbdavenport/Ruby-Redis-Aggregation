@@ -23,9 +23,6 @@ Task descriptions:
   :xmls              - uses all xml files
   :zips              - uses all zip files
   :all               - uses all xml and zip files
-
-Only aggregate namespace combines multiple tasks
-All other tasks have one specific task
 EOF
 
   def self.info

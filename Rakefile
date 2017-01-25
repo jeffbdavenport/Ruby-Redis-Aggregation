@@ -26,7 +26,7 @@ end
 
 # Namespace default tasks
 
-desc 'Download, Aggregate, Remove all'
+desc 'Download, Aggregate, Remove all                 - includes existing'
 task :aggregate, [:url] => ['aggregate:all']
 
 desc 'All from url'
