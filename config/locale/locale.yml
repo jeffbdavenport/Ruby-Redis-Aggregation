@@ -5,6 +5,17 @@ en:
   file_list:
     extracting: "Extracting %{file} to %{path}"
     finished_reading: "Aggregated all XML files from %{file}"
+    aggregated: "%{path} has already been aggregated, removing"
 
   manage_data:
     added: "Added data matching md5sum %{data} to list %{list}"
+
+  arguments:
+    args_key: '#valid? requires a hash with the :args key'
+    not_hash: "Argument \"%{args}\", must be in hash form."
+    invalid_key: "Hash key :%{key}, is not a valid key"
+  rake:
+    argument: 'Please provide an argumment'
+    missing: "%{path} does not exist"
+    removed: "Removed %{path}"
+    removed_files: "Removed %{count} %{type} file%{plural} in %{path}/"
