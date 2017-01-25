@@ -6,11 +6,12 @@ module Aggregate
   class ManageData
     attr_reader :md5_sum, :list
     def initialize(args)
-      Arguments.valid? args: args, valid: [:file, :data, :list, :redis, :extra]
-      self.data = args[:data] || File.read(args[:file])
-      @list =  args[:list] || CONF.redis.list
-      @extra = '_' + args[:extra] if args[:extra]
-      @redis = args[:redis] || REDIS
+      Arguments.valid? args, :file, :data, :list, :redis, :extra
+      Arguments.fill args, CONF.redis, :list
+      self.data = args[:data]  || File.read(args[:file])
+      @redis    = args[:redis] || REDIS
+      @list     = args[:list]
+      @extra    = '_' + args[:extra] if args[:extra]
     end
 
     def self.aggregate(data, extra = nil)

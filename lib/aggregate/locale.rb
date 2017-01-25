@@ -4,7 +4,7 @@ module Aggregate
   # Load locale from yml file into Object.
   class Locale
     def initialize(args = {})
-      Arguments.valid? args: args, valid: [:file, :hash]
+      Arguments.valid? args, :file, :hash
       file = args[:file]
       hash = if args[:file].nil?
                args[:hash]

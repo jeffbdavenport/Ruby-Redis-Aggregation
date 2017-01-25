@@ -1,16 +1,16 @@
 require 'fileutils'
 module Aggregate
-  # Add some helper methods to File
+  # Add some helper methods to File, including files that don't exist yet
   class TmpFile
     attr_reader :file_ext, :file
     def initialize(args)
-      Arguments.valid? args: args, valid: [:file, :path]
-      @file = args[:file]
+      Arguments.valid? args, :file, :path, :url, :list
+      Arguments.fill args, CONF.download,       :path, :url
+      Arguments.fill args, CONF.download.redis, :list
+      @file = File.basename args[:file]
       @path = args[:path]
-    end
-
-    def self.url
-      CONF.download.url
+      @url = args[:url]
+      @list = args[:list]
     end
 
     # Path to file
@@ -20,7 +20,7 @@ module Aggregate
 
     # File URL
     def url
-      URI.join TmpFile.url, @file
+      URI.join @url, @file
     end
 
     # File path with .part
