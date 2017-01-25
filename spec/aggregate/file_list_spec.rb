@@ -17,7 +17,7 @@ module Aggregate
 
         context 'without :entry_path' do
           let(:file_list) { FileList.new }
-          it { is_expected.to eq File.join('tmp', 'entries') }
+          it { is_expected.to eq CONF.file_list.entry_path }
         end
       end
     end
